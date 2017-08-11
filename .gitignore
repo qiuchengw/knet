@@ -1,0 +1,7 @@
+*.suo
+*.obj
+*.tlog
+Debug
+*.db
+GeneratedFiles
+*.opendb
