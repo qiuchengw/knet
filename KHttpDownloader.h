@@ -52,7 +52,7 @@ private:
     QUrl    url_;
 
     // value : file save path
-    QHash<QObject*, QString>     recivers_;
+    QMultiHash<QObject*, QString>     recivers_;
 };
 
 struct UserRequest

@@ -5,3 +5,6 @@ Debug
 *.db
 GeneratedFiles
 *.opendb
+*.pch
+*.log
+moc_*.cpp

@@ -27,13 +27,14 @@ T* arr2ptr(const QByteArray& a){
 
 void DownloadSignal::AddReciver(QObject* obj, const char* sloter, QString file_save)
 {
-    if ((nullptr != obj) && !recivers_.contains(obj) && (nullptr != sloter))
+    if ((nullptr != obj) && (nullptr != sloter))
     {
         recivers_.insert(obj, file_save);
 
-        QObject::connect(this,
+        auto cn = QObject::connect(this,
             SIGNAL(downloadSignal(int, QUrl, int, QNetworkReply::NetworkError)),
-            obj, sloter);
+            obj, sloter, Qt::UniqueConnection);
+		Q_ASSERT(cn);
     }
 }
 
