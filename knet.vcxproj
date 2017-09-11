@@ -18,10 +18,10 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <PlatformToolSet>v120</PlatformToolSet>
+    <PlatformToolSet>v140</PlatformToolSet>
     <OutputDirectory>..\..\bin\</OutputDirectory>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <IntermediateDirectory>release\</IntermediateDirectory>
     <PrimaryOutput>knet</PrimaryOutput>
@@ -47,15 +47,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">knet</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;GeneratedFiles;.;..\..;..\..\..\dt2;..\..\include;C:\qt\qt5.7.1x32\5.7\msvc2013\include;C:\qt\qt5.7.1x32\5.7\msvc2013\include\QtGui;C:\qt\qt5.7.1x32\5.7\msvc2013\include\QtANGLE;C:\qt\qt5.7.1x32\5.7\msvc2013\include\QtNetwork;C:\qt\qt5.7.1x32\5.7\msvc2013\include\QtCore;release;C:\qt\qt5.7.1x32\5.7\msvc2013\mkspecs\win32-msvc2013;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;GeneratedFiles;$(QTDIR)\include\QtCore;$(QTDIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:strictStrings -w34100 -w34189 -w44996 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -151,7 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="KHttpDownloader.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\GeneratedFiles" "-I.\..\.." "-I.\..\..\..\dt2" "-I.\..\..\include" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtGui" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtANGLE" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtNetwork" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtCore" "-I.\release" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\mkspecs\win32-msvc2013" "-I$(QTDIR)\include\QtCore" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../KHttpDownloader.h"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG -D_UNICODE  "-I." "-I.\GeneratedFiles" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../KHttpDownloader.h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing KHttpDownloader.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_GUI_LIB -DQT_CORE_LIB -D_UNICODE  "-I." "-I.\GeneratedFiles" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../KHttpDownloader.h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing KHttpDownloader.h...</Message>
@@ -161,7 +158,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="http_awaker.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\GeneratedFiles" "-I.\..\.." "-I.\..\..\..\dt2" "-I.\..\..\include" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtGui" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtANGLE" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtNetwork" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\include\QtCore" "-I.\release" "-IC:\qt\qt5.7.1x32\5.7\msvc2013\mkspecs\win32-msvc2013" "-I$(QTDIR)\include\QtCore" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../http_awaker.h"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG -D_UNICODE  "-I." "-I.\GeneratedFiles" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../http_awaker.h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing http_awaker.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DQT_NETWORK_LIB -DKNET_LIB -DBUILD_STATIC -DQT_GUI_LIB -DQT_CORE_LIB -D_UNICODE  "-I." "-I.\GeneratedFiles" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include" "-I$(MyDepsDir)\qaivlib" "-I$(MyDepsDir)\." "-I$(TopDir)\." "-I$(MY_BOOST_DIR)\." "-IC:\Program Files (x86)\Visual Leak Detector\include" "-fstdafx.h" "-f../http_awaker.h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing http_awaker.h...</Message>
