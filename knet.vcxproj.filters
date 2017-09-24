@@ -49,26 +49,20 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\moc_KHttpDownloader.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_KHttpDownloader.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Release\moc_KHttpDownloader.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_KHttpDownloader.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Debug\moc_http_awaker.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_http_awaker.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Release\moc_http_awaker.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_http_awaker.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="KHttpDownloader.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="http_awaker.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <ClInclude Include="net.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -77,8 +71,11 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.h.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
+    <CustomBuild Include="http_awaker.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="KHttpDownloader.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

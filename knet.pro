@@ -4,7 +4,7 @@
 
 TEMPLATE = lib
 TARGET = knet
-DESTDIR = ../../../bin/Debug
+DESTDIR = ../../bin/Release
 QT += core
 CONFIG += staticlib debug
 DEFINES += _WINDOWS QT_NETWORK_LIB KNET_LIB BUILD_STATIC QT_NETWORK_LIB
@@ -13,15 +13,8 @@ INCLUDEPATH += . \
 LIBS += -L"."
 PRECOMPILED_HEADER = stdafx.h
 DEPENDPATH += .
-MOC_DIR += debug
-OBJECTS_DIR += debug
+MOC_DIR += ./GeneratedFiles/release
+OBJECTS_DIR += release
 UI_DIR += ./GeneratedFiles
 RCC_DIR += ./GeneratedFiles
-HEADERS += ./net.h \
-    ./KHttpDownloader.h \
-    ./http_awaker.h \
-    ./stdafx.h
-SOURCES += ./KHttpDownloader.cpp \
-    ./http_awaker.cpp \
-    ./net.cpp \
-    ./stdafx.cpp
+include(knet.pri)
