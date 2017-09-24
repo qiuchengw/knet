@@ -7,11 +7,11 @@
 message("You are running qmake on a generated .pro file. This may not work!")
 
 
-HEADERS += ./http_awaker.h \
+HEADERS += ./net.h \
+    ./http_awaker.h \
     ./KHttpDownloader.h \
-    ./net.h \
     ./stdafx.h
 SOURCES += ./KHttpDownloader.cpp \
+    ./http_awaker.cpp \
     ./net.cpp \
-    ./stdafx.cpp \
-    ./http_awaker.cpp
+    ./stdafx.cpp
