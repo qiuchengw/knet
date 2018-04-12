@@ -214,7 +214,7 @@ echo #include "stdafx.h"&gt;&gt;stdafx.h.cpp</Command>
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_Win32="5.9x32" />
+      <UserProperties UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_Win32="5.10x32" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

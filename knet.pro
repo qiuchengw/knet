@@ -13,8 +13,15 @@ INCLUDEPATH += . \
 LIBS += -L"."
 PRECOMPILED_HEADER = stdafx.h
 DEPENDPATH += .
-MOC_DIR += ./GeneratedFiles/release
+MOC_DIR += ./GeneratedFiles/$(ConfigurationName)
 OBJECTS_DIR += release
 UI_DIR += ./GeneratedFiles
 RCC_DIR += ./GeneratedFiles
-include(knet.pri)
+HEADERS += ./net.h \
+    ./http_awaker.h \
+    ./KHttpDownloader.h \
+    ./stdafx.h
+SOURCES += ./KHttpDownloader.cpp \
+    ./http_awaker.cpp \
+    ./net.cpp \
+    ./stdafx.cpp
