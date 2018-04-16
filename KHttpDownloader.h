@@ -20,8 +20,7 @@ class QNetworkReply;
 class QFile;
 QT_END_NAMESPACE
 
-class DownloadSignal : public QObject
-{
+class DownloadSignal : public QObject {
     Q_OBJECT
 
 public:
@@ -31,17 +30,15 @@ public:
     // 返回剩余的监听者
     int RemoveReciver(QObject* obj);
 
-    inline QUrl url()const
-    {
+    inline QUrl url()const {
         return url_;
     }
 
-    inline QList<QString> FileSaves()const
-    {
+    inline QList<QString> FileSaves()const {
         return recivers_.values();
     }
 
-    void emitDownloadSignal(int evt, int progress, QNetworkReply::NetworkError err){
+    void emitDownloadSignal(int evt, int progress, QNetworkReply::NetworkError err) {
         emit downloadSignal(evt, url_, progress, err);
     }
 
@@ -55,8 +52,7 @@ private:
     QMultiHash<QObject*, QString>     recivers_;
 };
 
-struct UserRequest
-{
+struct UserRequest {
     QUrl url;
     QString file_save;
     QObject* obj;
@@ -65,55 +61,53 @@ struct UserRequest
 };
 
 class KHttpDownloadThread;
-class KHttpDownloader : public QObject
-{
+class KHttpDownloader : public QObject {
     Q_OBJECT
 
     friend class KHttpDownloadThread;
     friend std::shared_ptr<KHttpDownloader> ;
 
-    struct _ReqItem
-    {
-        _ReqItem(){
+    struct _ReqItem {
+        _ReqItem() {
             file_.setAutoRemove(true);
-            connect(&timer_, &QTimer::timeout, [=](){
-                if (0 >= progs_){ // 如果还没有一点进度，那么就停止吧
+            connect(&timer_, &QTimer::timeout, [=]() {
+                if (0 >= progs_) { // 如果还没有一点进度，那么就停止吧
                     abort(QNetworkReply::TimeoutError);
                 }
             });
         }
 
-        bool start(QNetworkAccessManager* man, const QUrl& url, 
-            const QHash<QString, QString> &headers, int timeout = 10);
+        bool start(QNetworkAccessManager* man, const QUrl& url,
+                   const QHash<QString, QString> &headers, int timeout = 10);
 
         void abort(QNetworkReply::NetworkError err);
         // 状态是已经完成，但是发生了错误
         void finshedError(QNetworkReply::NetworkError err);
 
-        QNetworkReply* reply()const{
+        QNetworkReply* reply()const {
             return rep_;
         }
 
-        DownloadSignal* signal(){
+        DownloadSignal* signal() {
             return &signal_;
         }
 
         void setProgress(int n);
-        int progress()const{
+        int progress()const {
             return progs_;
         }
 
-        void httpRead(){
+        void httpRead() {
             file_.write(rep_->readAll());
         }
 
-        void save2(const QString& file){
+        void save2(const QString& file) {
             file_.copy(file);
         }
     private:
         // 请求
         QNetworkReply*  rep_ = nullptr;
-        
+
         // 进度
         int progs_ = 0;
 
@@ -142,8 +136,7 @@ private:
 protected:
     Reqs::iterator Find(QNetworkReply* r);
 
-    inline _ReqItem* Find(QUrl url)
-    {
+    inline _ReqItem* Find(QUrl url) {
         return reqs_.value(url).get();
     }
 
@@ -156,7 +149,7 @@ public slots:
     bool saveToFile(QUrl url, QString path, bool overwrite = true);
     void errorMessage(QNetworkReply::NetworkError);
 
-    
+
 private slots:
     void httpFinished();
     void httpReadyRead();
@@ -172,23 +165,22 @@ private:
     std::shared_ptr<QNetworkAccessManager> man_ = nullptr;
 };
 
-class KHttpDownloadThread : public QThread
-{
+class KHttpDownloadThread : public QThread {
     Q_OBJECT
 
 public:
     bool start();
     bool shutdown();
 
-    void downloadFile(QUrl url, QString file_save, QObject* obj, const char* sloter, 
-        const QHash<QString, QString>& header);
+    void downloadFile(QUrl url, QString file_save, QObject* obj, const char* sloter,
+                      const QHash<QString, QString>& header);
     void RemoveDownload(QObject* obj, QUrl url);
 
 protected:
     virtual void run() override;
 
 protected slots:
-void onAwake(int reason, QByteArray data);
+    void onAwake(int reason, QByteArray data);
 
 private:
     // 唤醒器

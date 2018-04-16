@@ -8,8 +8,7 @@
 #include <QMutex>
 #include <QThread>
 
-class QThreadAWakerEmitor : public QObject
-{
+class QThreadAWakerEmitor : public QObject {
     Q_OBJECT;
 
 public:
@@ -20,28 +19,24 @@ signals:
     void signal_AwakeSignal(int reason, QByteArray msg);
 };
 
-class HttpAWaker
-{
+class HttpAWaker {
     Q_DISABLE_COPY(HttpAWaker);
 
     friend class KAsyncReqThreadPrivate;
     friend class KHttpDownloadThread;
 
 public:
-    ~HttpAWaker()
-    {
+    ~HttpAWaker() {
         QMutexLocker locker(&event_locker_);
 
-        for (auto *p : awake_emitors_.values())
-        {
+        for (auto *p : awake_emitors_.values()) {
             delete p;
         }
     }
 
 private:
     HttpAWaker(QObject* p, const char* awake_sloter)
-        :sloter_obj_(p), awake_sloter_(awake_sloter)
-    {
+        :sloter_obj_(p), awake_sloter_(awake_sloter) {
         Q_ASSERT(nullptr != awake_sloter_);
     }
 
@@ -54,15 +49,13 @@ private:
     *		-[in]
     *      msg     唤醒消息
     **/
-    bool AwakeMessage(int reason, const QByteArray& msg)
-    {
+    bool AwakeMessage(int reason, const QByteArray& msg) {
         event_locker_.lock();
         QThreadAWakerEmitor* emitor = socket(QThread::currentThreadId());
         event_locker_.unlock();
 
         Q_ASSERT(nullptr != emitor);
-        if (nullptr != emitor)
-        {
+        if (nullptr != emitor) {
             // 阻塞方式
             emit emitor->signal_AwakeSignal(reason, msg);
 
@@ -73,11 +66,9 @@ private:
 
 private:
     // 如果当前没有则创建
-    QThreadAWakerEmitor* socket(Qt::HANDLE thread_id)
-    {
+    QThreadAWakerEmitor* socket(Qt::HANDLE thread_id) {
         auto * p = awake_emitors_.value(thread_id);
-        if (nullptr == p)
-        {
+        if (nullptr == p) {
             p = new QThreadAWakerEmitor();
 
             // 保存
@@ -86,7 +77,7 @@ private:
             // 连接上去
             QByteArray slot = awake_sloter_.toUtf8();
             QObject::connect(p, SIGNAL(signal_AwakeSignal(int, QByteArray)),
-                sloter_obj_, slot.constData());
+                             sloter_obj_, slot.constData());
         }
         return p;
     }

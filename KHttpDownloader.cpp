@@ -5,7 +5,7 @@
 #include "net.h"
 
 template<typename T>
-QByteArray ptr2arr(T *t){
+QByteArray ptr2arr(T *t) {
     QString str =
 #ifdef _WIN32
         QString::number((qint32)t);
@@ -16,7 +16,7 @@ QByteArray ptr2arr(T *t){
 }
 
 template<typename T>
-T* arr2ptr(const QByteArray& a){
+T* arr2ptr(const QByteArray& a) {
 #ifdef _WIN32
     qint32 p = a.toInt();
 #else
@@ -25,38 +25,32 @@ T* arr2ptr(const QByteArray& a){
     return (T*)p;
 }
 
-void DownloadSignal::AddReciver(QObject* obj, const char* sloter, QString file_save)
-{
-    if ((nullptr != obj) && (nullptr != sloter))
-    {
+void DownloadSignal::AddReciver(QObject* obj, const char* sloter, QString file_save) {
+    if ((nullptr != obj) && (nullptr != sloter)) {
         recivers_.insert(obj, file_save);
 
         auto cn = QObject::connect(this,
-            SIGNAL(downloadSignal(int, QUrl, int, QNetworkReply::NetworkError)),
-            obj, sloter, Qt::UniqueConnection);
-		Q_ASSERT(cn);
+                                   SIGNAL(downloadSignal(int, QUrl, int, QNetworkReply::NetworkError)),
+                                   obj, sloter, Qt::UniqueConnection);
+        Q_ASSERT(cn);
     }
 }
 
-int DownloadSignal::RemoveReciver(QObject* obj)
-{
+int DownloadSignal::RemoveReciver(QObject* obj) {
     auto idx = recivers_.find(obj);
-    if (recivers_.end() != idx)
-    {
+    if (recivers_.end() != idx) {
         recivers_.erase(idx);
     }
     return recivers_.size();
 }
 
-void DownloadSignal::setUrl(const QUrl& url)
-{
+void DownloadSignal::setUrl(const QUrl& url) {
     url_ = url;
 }
 
 //////////////////////////////////////////////////////////////////////////
-KHttpDownloader::~KHttpDownloader()
-{
-    for (auto p : reqs_){
+KHttpDownloader::~KHttpDownloader() {
+    for (auto p : reqs_) {
         p->abort(QNetworkReply::OperationCanceledError);
     }
     reqs_.clear();
@@ -65,28 +59,26 @@ KHttpDownloader::~KHttpDownloader()
     man_.reset();
 }
 
-KHttpDownloader::KHttpDownloader(QObject *parent) : QObject(parent)
-{
+KHttpDownloader::KHttpDownloader(QObject *parent) : QObject(parent) {
     man_.reset(new QNetworkAccessManager(nullptr));
     connect(man_.get(), &QNetworkAccessManager::encrypted, this, &KHttpDownloader::onEncrypted);
 }
 
-bool KHttpDownloader::_ReqItem::start(QNetworkAccessManager* man, const QUrl& url, 
-    const QHash<QString, QString> &headers, int timeout /*= 10*/)
-{
-    if (!file_.open()){
+bool KHttpDownloader::_ReqItem::start(QNetworkAccessManager* man, const QUrl& url,
+                                      const QHash<QString, QString> &headers, int timeout /*= 10*/) {
+    if (!file_.open()) {
         // 临时文件打开失败
         return false;
     }
 
-    if (timeout >= 5){
+    if (timeout >= 5) {
         timer_.setInterval(timeout * 1000);
         timer_.start();
     }
 
     QNetworkRequest req(url);
     req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    for (auto i = headers.begin(); i != headers.end(); ++i){
+    for (auto i = headers.begin(); i != headers.end(); ++i) {
         req.setRawHeader(i.key().toUtf8(), i.value().toUtf8());
     }
     rep_ = man->get(req);
@@ -94,35 +86,32 @@ bool KHttpDownloader::_ReqItem::start(QNetworkAccessManager* man, const QUrl& ur
     return nullptr != rep_;
 }
 
-void KHttpDownloader::_ReqItem::abort(QNetworkReply::NetworkError err)
-{
+void KHttpDownloader::_ReqItem::abort(QNetworkReply::NetworkError err) {
     timer_.stop();
-    if (rep_ && rep_->isRunning()){
+    if (rep_ && rep_->isRunning()) {
         signal_.emitDownloadSignal(net::HttpDownload_Event_Error, progs_, err);
         rep_->abort();
     }
 }
 
-void KHttpDownloader::_ReqItem::finshedError(QNetworkReply::NetworkError err)
-{
+void KHttpDownloader::_ReqItem::finshedError(QNetworkReply::NetworkError err) {
     signal_.emitDownloadSignal(net::HttpDownload_Event_Error, progs_, err);
 }
 
-void KHttpDownloader::_ReqItem::setProgress(int n)
-{
-    if (n == progs_){
+void KHttpDownloader::_ReqItem::setProgress(int n) {
+    if (n == progs_) {
         return;
     }
 
     progs_ = n;
 
-    if (rep_ != nullptr){
+    if (rep_ != nullptr) {
         signal_.emitDownloadSignal(net::HttpDownload_Event_Progress, progs_, rep_->error());
 
-        if (progs_ >= 100){
+        if (progs_ >= 100) {
             file_.flush();
             // 保存文件
-            for (const QString& s : signal_.FileSaves()){
+            for (const QString& s : signal_.FileSaves()) {
                 // 先把原来的文件给删除掉
                 QFile::remove(s);
 
@@ -135,46 +124,42 @@ void KHttpDownloader::_ReqItem::setProgress(int n)
     }
 }
 
-void KHttpDownloader::downloadFile(UserRequest* rq)
-{
-    if (!reqs_.contains(rq->url))
-    {
+void KHttpDownloader::downloadFile(UserRequest* rq) {
+    if (!reqs_.contains(rq->url)) {
         std::shared_ptr<_ReqItem> p(new _ReqItem);
         p->start(man_.get(), rq->url, rq->headers);
         reqs_.insert(rq->url, p);
 
         // 信号连接
-        if (auto *r = p->reply()){
+        if (auto *r = p->reply()) {
             connect(r, &QNetworkReply::finished, this, &KHttpDownloader::httpFinished);
             connect(r, &QNetworkReply::readyRead, this, &KHttpDownloader::httpReadyRead);
             connect(r, &QNetworkReply::downloadProgress,this, &KHttpDownloader::updateDataReadProgress);
             connect(r, &QNetworkReply::sslErrors, this, &KHttpDownloader::sslErrors);
-            connect(r, SIGNAL(error(QNetworkReply::NetworkError)), 
-                this, SLOT(errorMessage(QNetworkReply::NetworkError)));
+            connect(r, SIGNAL(error(QNetworkReply::NetworkError)),
+                    this, SLOT(errorMessage(QNetworkReply::NetworkError)));
         }
     }
 
-    if (_ReqItem *p = Find(rq->url)){
+    if (_ReqItem *p = Find(rq->url)) {
         // 监听者
         p->signal()->AddReciver(rq->obj, rq->sloter, rq->file_save);
     }
 }
 
-void KHttpDownloader::httpFinished()
-{
+void KHttpDownloader::httpFinished() {
     QNetworkReply* r = qobject_cast<QNetworkReply*>(sender());
-    if (nullptr != r){
+    if (nullptr != r) {
         auto i = Find(r);
-        if (i != reqs_.end()){
-            if (auto p = i.value()){
+        if (i != reqs_.end()) {
+            if (auto p = i.value()) {
                 int status = r->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
                 qDebug() << "code:" << status;
-                if (200 == status){    // ok
+                if (200 == status) {   // ok
                     p->setProgress(100);
                     // 现在可以移除这个下载项目了
                     RemoveDownload(i.key());
-                }
-                else{
+                } else {
                     // 使用abort发射信号
                     p->finshedError(QNetworkReply::NoError);
                 }
@@ -183,20 +168,18 @@ void KHttpDownloader::httpFinished()
     }
 }
 
-void KHttpDownloader::httpReadyRead()
-{
+void KHttpDownloader::httpReadyRead() {
     if (QNetworkReply* r = qobject_cast<QNetworkReply*>(sender())) {
-        if (_ReqItem* p = FindReq(r)){
+        if (_ReqItem* p = FindReq(r)) {
             // 读数据，写入到临时文件里面
             p->httpRead();
         }
     }
 }
 
-void KHttpDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
-{
-    if (QNetworkReply* r = qobject_cast<QNetworkReply*>(sender())){
-        if (_ReqItem* p = FindReq(r)){
+void KHttpDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes) {
+    if (QNetworkReply* r = qobject_cast<QNetworkReply*>(sender())) {
+        if (_ReqItem* p = FindReq(r)) {
             if (totalBytes <= 0 || bytesRead < 0)
                 return;
 
@@ -206,28 +189,24 @@ void KHttpDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes
     }
 }
 
-void KHttpDownloader::sslErrors(const QList<QSslError> &errors)
-{
-    if (!errors.isEmpty()){
-        for (auto& t : errors){
+void KHttpDownloader::sslErrors(const QList<QSslError> &errors) {
+    if (!errors.isEmpty()) {
+        for (auto& t : errors) {
             qDebug() << t.error() << ":" << t.errorString()<<"\n";
         }
     }
 }
 
-void KHttpDownloader::onEncrypted(QNetworkReply *reply)
-{
+void KHttpDownloader::onEncrypted(QNetworkReply *reply) {
     QSslConfiguration ssl;
     ssl.setProtocol(QSsl::AnyProtocol);
     reply->setSslConfiguration(ssl);
 }
 
-QByteArray KHttpDownloader::getDownloadData(QUrl url)
-{
-    if (_ReqItem* r = Find(url))
-    {
-        if (auto* p = r->reply()){
-            if ((r->progress() == 100) && p->isFinished()){
+QByteArray KHttpDownloader::getDownloadData(QUrl url) {
+    if (_ReqItem* r = Find(url)) {
+        if (auto* p = r->reply()) {
+            if ((r->progress() == 100) && p->isFinished()) {
                 return p->readAll();
             }
         }
@@ -235,11 +214,9 @@ QByteArray KHttpDownloader::getDownloadData(QUrl url)
     return "";
 }
 
-bool KHttpDownloader::saveToFile(QUrl url, QString path, bool overwrite)
-{
-    if (_ReqItem* p = Find(url))
-    {
-        if (QFile::exists(path) && !overwrite){
+bool KHttpDownloader::saveToFile(QUrl url, QString path, bool overwrite) {
+    if (_ReqItem* p = Find(url)) {
+        if (QFile::exists(path) && !overwrite) {
             qWarning() << "File with name \"" << path << "\" already exists. Rewrite.";
             return false;
         }
@@ -248,11 +225,10 @@ bool KHttpDownloader::saveToFile(QUrl url, QString path, bool overwrite)
     return false;
 }
 
-void KHttpDownloader::errorMessage(QNetworkReply::NetworkError er)
-{
-    if (QNetworkReply* r = qobject_cast<QNetworkReply*>(sender())){
+void KHttpDownloader::errorMessage(QNetworkReply::NetworkError er) {
+    if (QNetworkReply* r = qobject_cast<QNetworkReply*>(sender())) {
         auto i  = Find(r);
-        if (i != reqs_.end()){
+        if (i != reqs_.end()) {
             auto p = i.value();
             p->signal()->emitDownloadSignal(net::HttpDownload_Event_Error, p->progress(), er);
 
@@ -262,45 +238,37 @@ void KHttpDownloader::errorMessage(QNetworkReply::NetworkError er)
     }
 }
 
-KHttpDownloader::Reqs::iterator KHttpDownloader::Find(QNetworkReply* r)
-{
+KHttpDownloader::Reqs::iterator KHttpDownloader::Find(QNetworkReply* r) {
     auto ie = reqs_.end();
-    for (auto i = reqs_.begin(); i != ie; ++i){
-        if (i.value()->reply() == r){
+    for (auto i = reqs_.begin(); i != ie; ++i) {
+        if (i.value()->reply() == r) {
             return i;
         }
     }
     return ie;
 }
 
-QUrl KHttpDownloader::UrlOfReqest(QNetworkReply* r)
-{
+QUrl KHttpDownloader::UrlOfReqest(QNetworkReply* r) {
     auto i = Find(r);
-    if (i != reqs_.end())
-    {
+    if (i != reqs_.end()) {
         return i.key();
     }
     return QUrl();
 }
 
-KHttpDownloader::_ReqItem* KHttpDownloader::FindReq(QNetworkReply* r)
-{
+KHttpDownloader::_ReqItem* KHttpDownloader::FindReq(QNetworkReply* r) {
     auto i = Find(r);
-    if (i != reqs_.end())
-    {
+    if (i != reqs_.end()) {
         return i.value().get();
     }
     return nullptr;
 }
 
-void KHttpDownloader::RemoveDownload(QObject* obj, QUrl url)
-{
+void KHttpDownloader::RemoveDownload(QObject* obj, QUrl url) {
     auto i = reqs_.find(url);
-    if (i == reqs_.end())
-    {
-        if (_ReqItem* p = i.value().get())
-        {
-            if (0 == p->signal()->RemoveReciver(obj)){
+    if (i == reqs_.end()) {
+        if (_ReqItem* p = i.value().get()) {
+            if (0 == p->signal()->RemoveReciver(obj)) {
                 // 没有人再关心这个下载了
                 RemoveDownload(url);
             }
@@ -308,13 +276,10 @@ void KHttpDownloader::RemoveDownload(QObject* obj, QUrl url)
     }
 }
 
-void KHttpDownloader::RemoveDownload(QUrl url)
-{
+void KHttpDownloader::RemoveDownload(QUrl url) {
     auto i = reqs_.find(url);
-    if (i != reqs_.end())
-    {
-        if (_ReqItem* p = i.value().get())
-        {
+    if (i != reqs_.end()) {
+        if (_ReqItem* p = i.value().get()) {
             // 取消执行
             p->abort(QNetworkReply::OperationCanceledError);
 
@@ -326,14 +291,12 @@ void KHttpDownloader::RemoveDownload(QUrl url)
 
 
 //////////////////////////////////////////////////////////////////////////
-enum EnumHttpAwakeReason
-{
+enum EnumHttpAwakeReason {
     HttpAwakeReason_Download,
     HttpAwakeReason_CancelDownload,
 };
 
-void KHttpDownloadThread::run()
-{
+void KHttpDownloadThread::run() {
     awaker_.reset(new HttpAWaker(this, SLOT(onAwake(int, QByteArray))));
     http_.reset(new KHttpDownloader(this));
 
@@ -346,11 +309,9 @@ void KHttpDownloadThread::run()
     running_ = false;
 }
 
-void KHttpDownloadThread::downloadFile(QUrl url, QString file_save, QObject* obj, 
-    const char* sloter, const QHash<QString, QString>& headers)
-{
-    if (!awaker_)
-    {
+void KHttpDownloadThread::downloadFile(QUrl url, QString file_save, QObject* obj,
+                                       const char* sloter, const QHash<QString, QString>& headers) {
+    if (!awaker_) {
         Q_ASSERT(false);
         return;
     }
@@ -365,10 +326,8 @@ void KHttpDownloadThread::downloadFile(QUrl url, QString file_save, QObject* obj
     awaker_->AwakeMessage(HttpAwakeReason_Download, ptr2arr(rq));
 }
 
-void KHttpDownloadThread::RemoveDownload(QObject* obj, QUrl url)
-{
-    if (!awaker_)
-    {
+void KHttpDownloadThread::RemoveDownload(QObject* obj, QUrl url) {
+    if (!awaker_) {
         // Q_ASSERT(false);
         return;
     }
@@ -380,36 +339,31 @@ void KHttpDownloadThread::RemoveDownload(QObject* obj, QUrl url)
     awaker_->AwakeMessage(HttpAwakeReason_CancelDownload, ptr2arr(rq));
 }
 
-bool KHttpDownloadThread::start()
-{
+bool KHttpDownloadThread::start() {
     // 启动线程
     QThread::start();
-    while (!running_)
-    {
+    while (!running_) {
         QThread::msleep(10);
     }
 
     // 必须得move到自己的线程中去！
-    //  the current thread must be same as the current thread affinity. 
-    //  In other words, this function can only "push" an object from the 
-    //  current thread to another thread, it cannot "pull" an object 
+    //  the current thread must be same as the current thread affinity.
+    //  In other words, this function can only "push" an object from the
+    //  current thread to another thread, it cannot "pull" an object
     //  from any arbitrary thread to the current thread.
     this->moveToThread(this);
 
     return true;
 }
 
-void KHttpDownloadThread::onAwake(int reason, QByteArray data)
-{
-    if (!http_)
-    {
+void KHttpDownloadThread::onAwake(int reason, QByteArray data) {
+    if (!http_) {
         Q_ASSERT(false);
         return;
     }
 
     UserRequest* rq = arr2ptr<UserRequest>(data);//  (UserRequest*)(data.constData());
-    switch (reason)
-    {
+    switch (reason) {
     case HttpAwakeReason_Download:
         http_->downloadFile(rq);
         break;
@@ -423,14 +377,12 @@ void KHttpDownloadThread::onAwake(int reason, QByteArray data)
     }
 }
 
-bool KHttpDownloadThread::shutdown()
-{
+bool KHttpDownloadThread::shutdown() {
     // 关闭线程
     quit();
 
     // 等待关闭
-    while (running_)
-    {
+    while (running_) {
         QThread::msleep(10);
     }
     return running_;
